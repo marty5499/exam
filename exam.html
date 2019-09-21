@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+<style id="jsbin-css">
+button {
+  font-size:32px;
+  height:44px;
+}
+
+input {
+  font-size:32px;
+  height:40px;
+  width:60px;
+}
+
+#title {
+  font-size:24px;
+}
+</style>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+  <div id='cs' style='display:none'>
+  <br><br>
+  <div id='title'>第<input id='first'>~<input id='last' >出<input id='amt'>題 <button onclick='js:start()'>開始</button></div>
+  
+  <br><br>
+  <button onclick='js:gogogo()'>出題</button>
+  <button onclick='js:showAns()'>看答案</button>
+  <h1><div id='msg'></div></h1>
+  <h1><div id='ans'></div></h1>
+  <iframe id='dreye' src='https://dictionary.cambridge.org/dictionary/english-chinese-traditional/' width='100%' height='400px' style='display:none'>
+  </iframe>
+  </div>
+<script id="jsbin-javascript">
+var first = 1;
+var last = 3;
+var amt;
+var exam;
+var answer;
+var test; 
+var no; 
+var url = 'https://dictionary.cambridge.org/dictionary/english-chinese-traditional/';
+
+
+function preload(){
+  $.ajax('https://docs.google.com/spreadsheets/d/e/2PACX-1vQt9CyvHViVYL3u0QkdqqTeZmDrpLkhZWwg233aX4QKozfVhvRJ1VmSnTNGLhr4SPuiSdyhCThAdH6u/pub?gid=0&single=true&output=csv').done(
+    function(data){
+    exam = data.split('\n');
+      cs.style.display='';
+  });  
+}
+
+
+function start(){
+  msg.innerHTML = '';
+  ans.innerHTML = '';
+    first = $('#first').val();
+    last = $('#last').val();
+    amt = $('#amt').val(); 
+    test = [];
+    no = 0;
+    genTest();
+}
+
+function genTest(){
+ for(var i=first-1;i<last;i++){
+   var q = exam[i].split(',');
+   var normalQ = [];
+   for(var x=0;x<q.length;x++){
+     if(q[x].trim().length>0) {
+       normalQ.push(q[x]);
+     } 
+   } 
+   test.push(randomQ(normalQ));
+ }
+  randomTest();
+} 
+ 
+function randomQ(q){
+  var eng = [q[0]];
+  var r = parseInt(Math.random()*(q.length-1));
+  eng.push(q[r+1]);
+  return eng;  
+} 
+
+function randomTest(){
+  var r = test.length; 
+  for(var i=0;i<1000;i++){
+    var a = parseInt(Math.random()*r);
+    var b = parseInt(Math.random()*r);
+    var tmp = test[a];
+    test[a] = test[b];
+    test[b] = tmp;
+  }
+} 
+
+function gogogo(){
+   dreye.style = 'display:none';
+   if(no==amt){
+     msg.innerHTML = '測驗完畢';
+     return;
+   }
+   msg.innerHTML = (no+1)+'. '+test[no][1];
+   ans.innerHTML = '';
+   answer = test[no];
+   dreye.src = url + answer;
+   no++;
+} 
+
+function showAns(){
+  ans.innerHTML = answer;
+  dreye.style = 'display';
+}
+
+preload();
+</script>
+</body>
+</html>
