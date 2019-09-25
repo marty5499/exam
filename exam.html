@@ -71,6 +71,17 @@
     $.ajax('https://docs.google.com/spreadsheets/d/e/2PACX-1vQt9CyvHViVYL3u0QkdqqTeZmDrpLkhZWwg233aX4QKozfVhvRJ1VmSnTNGLhr4SPuiSdyhCThAdH6u/pub?gid=0&single=true&output=csv').done(
       function (data) {
         exam = data.split('\n');
+        newExam = [];
+        for (var i = 0; i < exam.length; i++) {
+          var row = exam[i].split(',');
+          var newRow = [];
+          for (var j = 0; j < row.length; j++) {
+            if (row[j].trim().length == 0) continue;
+            newRow.push(row[j]);
+          }
+          newExam.push(newRow);
+        }
+        exam = newExam;
         document.getElementById('last').value = exam.length;
         cs.style.display = '';
       });
@@ -90,12 +101,10 @@
 
   function genTest() {
     for (var i = first - 1; i < last; i++) {
-      var q = exam[i].split(',');
+      var q = exam[i];
       var normalQ = [];
       for (var x = 0; x < q.length; x++) {
-        if (q[x].trim().length > 0) {
-          normalQ.push(q[x]);
-        }
+        normalQ.push(q[x]);
       }
       test.push(randomQ(normalQ));
     }
