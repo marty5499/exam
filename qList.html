@@ -50,7 +50,7 @@
   .correct {
     width: 200px;
     text-align: center;
-    color:#e0e0e0;
+    color:#f7f7f7;
   }
   </style>
 </head>
@@ -67,6 +67,10 @@
         　<option value="8">8</option>
         　<option value="9">9</option>
         　<option value="10">10</option>
+        　<option value="10">11</option>
+        　<option value="10">12</option>
+        　<option value="10">13</option>
+        　<option value="10">14</option>
       </select>
       週
       <button onclick='js:start()'>產生試卷</button>
@@ -110,6 +114,9 @@
     msg.innerHTML = '';
     qAmt = parseInt($('input[name=qAmt]:checked').val());
     week = parseInt($('#week').val());
+    if (qAmt == 15) {
+      week = week - 2;
+    }
     test = [];
     console.log('qamt:', qAmt, ' , week:', week);
     //本週抽10題
