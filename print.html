@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Exam</title>
+  <style>
+    button {
+      font-size: 32px;
+      height: 44px;
+    }
+
+    input {
+      font-size: 32px;
+      height: 40px;
+      width: 60px;
+      text-align: right;
+    }
+
+    select {
+      font-size: 32px;
+      height: 40px;
+      width: 80px;
+      text-align-last: center;
+    }
+
+    #title {
+      font-size: 24px;
+    }
+
+    .no {
+      text-align: right;
+    }
+
+    .q {
+      text-align: center;
+      width: 200px;
+    }
+
+    .ans {
+      position: relative;
+      bottom: -6px;
+    }
+
+    .exam {
+      font-size: 20px;
+    }
+
+    .correct {
+      position: relative;
+      width: 200px;
+      text-align: center;
+      right: -300px;
+      color: #ffe0e0;
+    }
+  </style>
+</head>
+
+<body style='background-color:#f0f0f0'>
+  <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+  <div id='cs' style='display:none'>
+    <br><br>
+    <div id='title'>
+      <input type="radio" name="qAmt" value="50" checked>方
+      ，第
+      <select id="week"  style="width:200px">
+        　<option value="12">11/29~12/05</option>
+        　<option value="13">12/06~12/12</option>
+        　<option value="14">12/13~12/19</option>
+        　<option value="15">12/20~12/26</option>
+        　<option value="16">12/27~01/02</option>
+        　<option value="17">01/03~01/09</option>
+        　<option value="18">01/10~01/16</option>
+        　<option value="19">01/17~01/23</option>
+        　<option value="20">01/24~01/30</option>
+        　<option value="21">01/31~02/06</option>
+      </select>
+      週
+      <button onclick='js:start()'>產生試卷</button>
+    </div>
+  </div>
+  <h1>
+    <div id='msg' class='exam'></div>
+  </h1>
+  <script>
+    var version = '1.01';
+    var historyExamSize = 10;
+    var weekExamSize = 10;
+    var thisWeekStart = 1;
+    var qAmt;
+    var week;
+    var amt;
+    var exam;
+    var answer;
+    var test;
+    var url = 'https://dictionary.cambridge.org/dictionary/english-chinese-traditional/';
+
+    function preload() {
+      $.ajax('https://docs.google.com/spreadsheets/d/e/2PACX-1vQt9CyvHViVYL3u0QkdqqTeZmDrpLkhZWwg233aX4QKozfVhvRJ1VmSnTNGLhr4SPuiSdyhCThAdH6u/pub?gid=0&single=true&output=csv').done(
+        function (data) {
+          exam = data.split('\n');
+          newExam = [];
+          for (var i = 0; i < exam.length; i++) {
+            var row = exam[i].split(',');
+            var newRow = [];
+            for (var j = 0; j < row.length; j++) {
+              if (row[j].trim().length == 0) continue;
+              newRow.push(row[j]);
+            }
+            newExam.push(newRow);
+          }
+          exam = newExam;
+          last = exam.length;
+          cs.style.display = '';
+          // load hash
+          if(location.hash!=''){
+            var week = location.hash.substring(1);
+            $('#week').val(parseInt(week));
+            start();
+          }
+        });
+    }
+
+    function start() {
+      msg.innerHTML = '';
+      qAmt = parseInt($('input[name=qAmt]:checked').val());
+      week = parseInt($('#week').val());
+      if (qAmt == 15) {
+        week = week - 2;
+      }
+      test = [];
+      console.log("Ver :", version);
+      console.log('qamt:', qAmt, ' , week:', week);
+      //本週抽10題
+      thisWeekStart = qAmt * week + 1;
+      console.log("thisWeekStart :", thisWeekStart);
+      var oldExam = genTest(1, thisWeekStart - 1, historyExamSize);
+      var newExam = genTest(thisWeekStart, thisWeekStart + qAmt, weekExamSize);
+      var exam = oldExam.concat(newExam);
+      createExamList(exam);
+    }
+
+    function genTest(first, last, amt) {
+      var nums = [];
+      var range = last - first - 1;
+      for (var i = 0; i <= range; i++) {
+        nums.push(i + first);
+      }
+      for (var i = 0; i < 1000000; i++) {
+        var a = parseInt(Math.random() * range);
+        var b = parseInt(Math.random() * range);
+        var x = nums[a];
+        nums[a] = nums[b];
+        nums[b] = x;
+      }
+      return nums.splice(0, amt);
+    }
+
+    function randomQ(q) {
+      var eng = [q[0]];
+      var r = parseInt(Math.random() * (q.length - 1));
+      eng.push(q[r + 1]);
+      return eng;
+    }
+
+    function createExamList(examList) {
+      var eleBody = document.getElementsByTagName('body')[0];
+      eleBody.style['backgroundColor'] = '#FFFFFF';
+      cs.style.display = 'none';
+      str = '<h1>'+$("select option:selected").html()+"</h1>";
+      str += '<table>';
+      for (var no = 0; no < examList.length; no++) {
+        var test = exam[examList[no]];
+        var test2 = randomQ(test);
+        str = str +
+          "<tr><td class='no'>" + (no + 1) + '. </td>' +
+          "<td class='q'>" + test2[1] + "</td>" +
+          "<td class='ans'>___________" + "</td>" +
+          "<td class='correct'>" + test[0] + "</td></tr>";
+      }
+      msg.innerHTML = str + "</table>";
+    }
+
+    preload();
+  </script>
+</body>
+
+</html>
